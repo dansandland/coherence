@@ -285,7 +285,7 @@ defmodule Coherence.Schema do
             if is_nil(current_password) do
               add_error(changeset, :current_password, Messages.backend().cant_be_blank())
             else
-              if get_field(changeset, :prehashed_password, :false) == true do
+              if get_field(changeset, :prehashed_password, :false) do
                 if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
                   add_error(changeset, :current_password, Messages.backend().invalid_current_password())
                 else
@@ -316,7 +316,7 @@ defmodule Coherence.Schema do
 
         defp set_password(changeset, _params) do
           if changeset.valid? and not is_nil(changeset.changes[:password]) do
-            if get_field(changeset, :prehashed_password, :false) == true do
+            if get_field(changeset, :prehashed_password, :false) do
               put_change changeset, Config.password_hash,
                 encrypt_password(changeset.changes[:password])
             else
