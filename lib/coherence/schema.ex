@@ -286,13 +286,13 @@ defmodule Coherence.Schema do
               add_error(changeset, :current_password, Messages.backend().cant_be_blank())
             else
               if get_field(changeset, :prehashed_password, :false) == true do
-                if not checkpw_md5(current_password, Map.get(changeset.data, Config.password_hash)) do
+                if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
                   add_error(changeset, :current_password, Messages.backend().invalid_current_password())
                 else
                   changeset
                 end
               else
-                if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
+                if not checkpw_md5(current_password, Map.get(changeset.data, Config.password_hash)) do
                   add_error(changeset, :current_password, Messages.backend().invalid_current_password())
                 else
                   changeset
