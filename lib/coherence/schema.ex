@@ -297,7 +297,7 @@ defmodule Coherence.Schema do
 
         defp set_password(changeset, _params) do
           if changeset.valid? and not is_nil(changeset.changes[:password]) do
-            if get_field(changeset, :prehashed_password, :false) do
+            if get_field(changeset, :prehashed_password, :false) == true do
               put_change changeset, Config.password_hash,
                 encrypt_password(changeset.changes[:password])
             else
