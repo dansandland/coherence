@@ -237,6 +237,17 @@ defmodule Coherence.Schema do
           end
         end
 
+        def checkpw_md5(password, encrypted) do
+          md5_password = :crypto.hash(:md5 , password) 
+          |> Base.encode16() 
+          |> String.downcase
+          try do
+            Comeonin.Bcrypt.checkpw(md5_password, encrypted)
+          rescue
+            _ -> false
+          end
+        end
+
         def encrypt_password(password) do
           Comeonin.Bcrypt.hashpwsalt(password)
         end
@@ -274,10 +285,18 @@ defmodule Coherence.Schema do
             if is_nil(current_password) do
               add_error(changeset, :current_password, Messages.backend().cant_be_blank())
             else
-              if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
-                add_error(changeset, :current_password, Messages.backend().invalid_current_password())
+              if get_field(changeset, :prehashed_password, :false) == true do
+                if not checkpw_md5(current_password, Map.get(changeset.data, Config.password_hash)) do
+                  add_error(changeset, :current_password, Messages.backend().invalid_current_password())
+                else
+                  changeset
+                end
               else
-                changeset
+                if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
+                  add_error(changeset, :current_password, Messages.backend().invalid_current_password())
+                else
+                  changeset
+                end
               end
             end
           else
