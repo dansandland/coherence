@@ -241,6 +241,13 @@ defmodule Coherence.Schema do
           Comeonin.Bcrypt.hashpwsalt(password)
         end
 
+        def encrypt_password_md5(password) do
+          md5_password = :crypto.hash(:md5 , password) 
+          |> Base.encode16() 
+          |> String.downcase
+          Comeonin.Bcrypt.hashpwsalt(md5_password)
+        end
+
         def validate_coherence(changeset, params) do
           changeset
           |> validate_length(:password, min: Config.minimum_password_length)
@@ -290,8 +297,13 @@ defmodule Coherence.Schema do
 
         defp set_password(changeset, _params) do
           if changeset.valid? and not is_nil(changeset.changes[:password]) do
-            put_change changeset, Config.password_hash,
-              encrypt_password(changeset.changes[:password])
+            if get_field(changeset, :prehashed_password, :false) do
+              put_change changeset, Config.password_hash,
+                encrypt_password(changeset.changes[:password])
+            else
+              put_change changeset, Config.password_hash,
+                encrypt_password_md5(changeset.changes[:password])
+            end
           else
             changeset
           end
@@ -351,6 +363,7 @@ defmodule Coherence.Schema do
     quote do
       if Coherence.Config.has_option(:authenticatable) do
         field Config.password_hash, :string
+        field :prehashed_password, :boolean, default: false
         field :current_password, :string, virtual: true
         field :password, :string, virtual: true
         field :password_confirmation, :string, virtual: true
@@ -393,7 +406,7 @@ defmodule Coherence.Schema do
   end
 
   @optional_fields %{
-    authenticatable: ~w(#{Config.password_hash} password password_confirmation),
+    authenticatable: ~w(#{Config.password_hash} password password_confirmation prehashed_password),
     recoverable: ~w(reset_password_token reset_password_sent_at),
     rememberable: ~w(remember_created_at),
     trackable: ~w(sign_in_count current_sign_in_at last_sign_in_at current_sign_in_ip last_sign_in_ip),
