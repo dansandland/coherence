@@ -109,11 +109,16 @@ defmodule Coherence.SessionController do
 
   defp valid_user_login?(nil, _params), do: false
   defp valid_user_login?(%{active: false}, _params), do: false
-  defp valid_user_login?(user, %{"session" => %{"password" => password}}) do
+  # defp valid_user_login?(user, %{"session" => %{"password" => password}, %{"is"}}) do
+  defp valid_user_login?(user, params) do
     IO.puts "valid_user_login?"
     IO.inspect user
     IO.inspect Map.get(user, :is_prehashed_password)
-    if Map.get(user, :is_prehashed_password) do
+    session = params["session"]
+    password = session["password"]
+    is_prehashed_password = session["is_prehashed_password"]
+    IO.puts is_prehashed_password
+    if is_prehashed_password == "1" do
       user.__struct__.checkpw(password, Map.get(user, Config.password_hash()))
     else
       user.__struct__.checkpw_md5(password, Map.get(user, Config.password_hash()))
