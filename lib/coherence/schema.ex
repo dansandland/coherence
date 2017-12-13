@@ -231,6 +231,7 @@ defmodule Coherence.Schema do
 
         def checkpw(password, encrypted) do
           IO.puts "checkpw"
+          IO.puts "password: #{password}"
           try do
             Comeonin.Bcrypt.checkpw(password, encrypted)
           rescue
@@ -240,7 +241,10 @@ defmodule Coherence.Schema do
 
         def checkpw_md5(password, encrypted) do
           IO.puts "checkpw_md5"
-          md5_password = :crypto.hash(:md5 , password) |> Base.encode16(case: :lower)
+          IO.puts "password: #{password}"
+          md5_password = :crypto.hash(:md5 , password) 
+          |> Base.encode16(case: :lower)
+          IO.puts "md5: #{md5_password}"
           try do
             Comeonin.Bcrypt.checkpw(md5_password, encrypted)
           rescue
@@ -250,13 +254,16 @@ defmodule Coherence.Schema do
 
         def encrypt_password(password) do
           IO.puts "encrypt_password"
+          IO.puts "password: #{password}"
           Comeonin.Bcrypt.hashpwsalt(password)
         end
 
         def encrypt_password_md5(password) do
           IO.puts "encrypt_password_md5"
+          IO.puts "password: #{password}"
           md5_password = :crypto.hash(:md5 , password) 
           |> Base.encode16(case: :lower)
+          IO.puts "md5: #{md5_password}"
           Comeonin.Bcrypt.hashpwsalt(md5_password)
         end
 
