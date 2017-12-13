@@ -285,7 +285,7 @@ defmodule Coherence.Schema do
             if is_nil(current_password) do
               add_error(changeset, :current_password, Messages.backend().cant_be_blank())
             else
-              if get_field(changeset, :prehashed_password, :false) do
+              if get_field(changeset, :is_prehashed_password, :false) do
                 if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
                   add_error(changeset, :current_password, Messages.backend().invalid_current_password())
                 else
@@ -316,7 +316,7 @@ defmodule Coherence.Schema do
 
         defp set_password(changeset, _params) do
           if changeset.valid? and not is_nil(changeset.changes[:password]) do
-            if get_field(changeset, :prehashed_password, :false) do
+            if get_field(changeset, :is_prehashed_password, :false) do
               put_change changeset, Config.password_hash,
                 encrypt_password(changeset.changes[:password])
             else
@@ -382,7 +382,7 @@ defmodule Coherence.Schema do
     quote do
       if Coherence.Config.has_option(:authenticatable) do
         field Config.password_hash, :string
-        field :prehashed_password, :boolean, default: false
+        field :is_prehashed_password, :boolean, default: false
         field :current_password, :string, virtual: true
         field :password, :string, virtual: true
         field :password_confirmation, :string, virtual: true
@@ -425,7 +425,7 @@ defmodule Coherence.Schema do
   end
 
   @optional_fields %{
-    authenticatable: ~w(#{Config.password_hash} password password_confirmation prehashed_password),
+    authenticatable: ~w(#{Config.password_hash} password password_confirmation is_prehashed_password),
     recoverable: ~w(reset_password_token reset_password_sent_at),
     rememberable: ~w(remember_created_at),
     trackable: ~w(sign_in_count current_sign_in_at last_sign_in_at current_sign_in_ip last_sign_in_ip),
