@@ -281,8 +281,8 @@ defmodule Coherence.Schema do
         end
 
         def validate_current_password(changeset, params) do
-          IO.puts changeset
-          IO.puts params
+          IO.inspect changeset
+          IO.inspect params
           current_password = params[:current_password] || params["current_password"]
           # current_password_required? = Config.require_current_password and
           #   (not is_nil(changeset.data.id)) and Map.has_key?(changeset.changes, :password)
@@ -326,8 +326,8 @@ defmodule Coherence.Schema do
 
         defp set_password(changeset, params) do
           IO.puts "set_password"
-          IO.puts changeset
-          IO.puts params
+          IO.inspect changeset
+          IO.inspect params
           if changeset.valid? and not is_nil(changeset.changes[:password]) do
             if get_field(changeset, :is_prehashed_password, :false) do
               put_change changeset, Config.password_hash,
