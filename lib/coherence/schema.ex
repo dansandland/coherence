@@ -281,6 +281,7 @@ defmodule Coherence.Schema do
         end
 
         def validate_current_password(changeset, params) do
+          IO.puts "validate_current_password"
           IO.inspect changeset
           IO.inspect params
           current_password = params[:current_password] || params["current_password"]
