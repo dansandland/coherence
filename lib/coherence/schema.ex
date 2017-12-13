@@ -230,8 +230,6 @@ defmodule Coherence.Schema do
         Keyword.get(unquote(opts), :authenticatable, true) do
 
         def checkpw(password, encrypted) do
-          IO.puts "checkpw"
-          IO.puts "password: #{password}"
           try do
             Comeonin.Bcrypt.checkpw(password, encrypted)
           rescue
@@ -240,11 +238,8 @@ defmodule Coherence.Schema do
         end
 
         def checkpw_md5(password, encrypted) do
-          IO.puts "checkpw_md5"
-          IO.puts "password: #{password}"
           md5_password = :crypto.hash(:md5 , password) 
           |> Base.encode16(case: :lower)
-          IO.puts "md5: #{md5_password}"
           try do
             Comeonin.Bcrypt.checkpw(md5_password, encrypted)
           rescue
@@ -253,17 +248,12 @@ defmodule Coherence.Schema do
         end
 
         def encrypt_password(password) do
-          IO.puts "encrypt_password"
-          IO.puts "password: #{password}"
           Comeonin.Bcrypt.hashpwsalt(password)
         end
 
         def encrypt_password_md5(password) do
-          IO.puts "encrypt_password_md5"
-          IO.puts "password: #{password}"
           md5_password = :crypto.hash(:md5 , password) 
           |> Base.encode16(case: :lower)
-          IO.puts "md5: #{md5_password}"
           Comeonin.Bcrypt.hashpwsalt(md5_password)
         end
 
@@ -281,9 +271,6 @@ defmodule Coherence.Schema do
         end
 
         def validate_current_password(changeset, params) do
-          IO.puts "validate_current_password"
-          IO.inspect changeset
-          IO.inspect params
           current_password = params[:current_password] || params["current_password"]
           # current_password_required? = Config.require_current_password and
           #   (not is_nil(changeset.data.id)) and Map.has_key?(changeset.changes, :password)
@@ -326,9 +313,6 @@ defmodule Coherence.Schema do
         end
 
         defp set_password(changeset, params) do
-          IO.puts "set_password"
-          IO.inspect changeset
-          IO.inspect params
           if changeset.valid? and not is_nil(changeset.changes[:password]) do
             if get_field(changeset, :is_prehashed_password, :false) do
               put_change changeset, Config.password_hash,

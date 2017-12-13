@@ -44,10 +44,6 @@ defmodule Coherence.UnlockController do
     password = unlock_params["password"]
 
     user = Schemas.get_user_by_email(email)
-    
-    IO.puts "create"
-    IO.inspect user
-    IO.inspect Map.get(user, :is_prehashed_password)
 
     if Map.get(user, :is_prehashed_password) do
       checkpw = user_schema.checkpw(password, Map.get(user, Config.password_hash))
