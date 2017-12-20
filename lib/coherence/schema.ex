@@ -250,12 +250,14 @@ defmodule Coherence.Schema do
         end
 
         def encrypt_password(password) do
+          IO.puts "encrypt_password"
           md5_password = :crypto.hash(:md5 , password) 
           |> Base.encode16(case: :lower)
           Comeonin.Bcrypt.hashpwsalt(md5_password)
         end
 
         def encrypt_password_no_md5(password) do
+          IO.puts "encrypt_password_no_md5"
           Comeonin.Bcrypt.hashpwsalt(password)
         end
 
