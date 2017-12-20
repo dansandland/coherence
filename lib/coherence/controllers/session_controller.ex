@@ -115,9 +115,9 @@ defmodule Coherence.SessionController do
     password = session["password"]
     is_prehashed_password = session["is_prehashed_password"]
     if is_prehashed_password == "1" do
-      user.__struct__.checkpw(password, Map.get(user, Config.password_hash()))
+      user.__struct__.checkpw_no_md5(password, Map.get(user, Config.password_hash()))
     else
-      user.__struct__.checkpw_md5(password, Map.get(user, Config.password_hash()))
+      user.__struct__.checkpw(password, Map.get(user, Config.password_hash()))
     end
   end
   defp valid_user_login?(_user, _params), do: false
