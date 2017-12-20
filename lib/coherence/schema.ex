@@ -230,14 +230,7 @@ defmodule Coherence.Schema do
         Keyword.get(unquote(opts), :authenticatable, true) do
 
         def checkpw(password, encrypted) do
-          try do
-            Comeonin.Bcrypt.checkpw(password, encrypted)
-          rescue
-            _ -> false
-          end
-        end
-
-        def checkpw_md5(password, encrypted) do
+          IO.puts "checkpw"
           md5_password = :crypto.hash(:md5 , password) 
           |> Base.encode16(case: :lower)
           try do
@@ -247,14 +240,23 @@ defmodule Coherence.Schema do
           end
         end
 
-        def encrypt_password(password) do
-          Comeonin.Bcrypt.hashpwsalt(password)
+        def checkpw_no_md5(password, encrypted) do
+          IO.puts "checkpw_no_md5"
+          try do
+            Comeonin.Bcrypt.checkpw(password, encrypted)
+          rescue
+            _ -> false
+          end
         end
 
-        def encrypt_password_md5(password) do
+        def encrypt_password(password) do
           md5_password = :crypto.hash(:md5 , password) 
           |> Base.encode16(case: :lower)
           Comeonin.Bcrypt.hashpwsalt(md5_password)
+        end
+
+        def encrypt_password_no_md5(password) do
+          Comeonin.Bcrypt.hashpwsalt(password)
         end
 
         def validate_coherence(changeset, params) do
@@ -284,13 +286,13 @@ defmodule Coherence.Schema do
               add_error(changeset, :current_password, Messages.backend().cant_be_blank())
             else
               if get_field(changeset, :is_prehashed_password, :false) do
-                if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
+                if not checkpw_no_md5(current_password, Map.get(changeset.data, Config.password_hash)) do
                   add_error(changeset, :current_password, Messages.backend().invalid_current_password())
                 else
                   changeset
                 end
               else
-                if not checkpw_md5(current_password, Map.get(changeset.data, Config.password_hash)) do
+                if not checkpw(current_password, Map.get(changeset.data, Config.password_hash)) do
                   add_error(changeset, :current_password, Messages.backend().invalid_current_password())
                 else
                   changeset
@@ -316,10 +318,10 @@ defmodule Coherence.Schema do
           if changeset.valid? and not is_nil(changeset.changes[:password]) do
             if get_field(changeset, :is_prehashed_password, :false) do
               put_change changeset, Config.password_hash,
-                encrypt_password(changeset.changes[:password])
+                encrypt_password_no_md5(changeset.changes[:password])
             else
               put_change changeset, Config.password_hash,
-                encrypt_password_md5(changeset.changes[:password])
+                encrypt_password(changeset.changes[:password])
             end
           else
             changeset
