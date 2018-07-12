@@ -107,8 +107,8 @@ defmodule Coherence.SessionController do
     ConfirmableService.confirmed?(user) || ConfirmableService.unconfirmed_access?(user)
   end
 
-  defp valid_user_login?(nil, _params), do: false
-  defp valid_user_login?(%{active: false}, _params), do: false
+  def valid_user_login?(nil, _params), do: false
+  def valid_user_login?(%{active: false}, _params), do: false
   # defp valid_user_login?(user, %{"session" => %{"password" => password}, %{"is"}}) do
   def valid_user_login?(user, params) do
     session = params["session"]
@@ -120,7 +120,7 @@ defmodule Coherence.SessionController do
       user.__struct__.checkpw(password, Map.get(user, Config.password_hash()))
     end
   end
-  defp valid_user_login?(_user, _params), do: false
+  def valid_user_login?(_user, _params), do: false
 
   defp do_lockable(conn, login_field, _, true) do
     conn
