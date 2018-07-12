@@ -70,7 +70,7 @@ defmodule Coherence.TrackableService do
     changeset = Controller.changeset(:session, user.__struct__, user,
       %{
         sign_in_count: user.sign_in_count + 1,
-        current_sign_in_at: Ecto.DateTime.utc,
+        current_sign_in_at: NaiveDateTime.utc_now(),
         current_sign_in_ip: ip,
         last_sign_in_at: last_at,
         last_sign_in_ip: last_ip
@@ -78,7 +78,9 @@ defmodule Coherence.TrackableService do
 
     case Schemas.update changeset do
       {:ok, user} ->
-        Conn.assign conn, Config.assigns_key, user
+        Config.auth_module
+        |> apply(Config.update_login, [conn, user, [id_key: Config.schema_key]])
+        |> Conn.assign(Config.assigns_key, user)
       {:error, _changeset} ->
         Logger.error ("Failed to update tracking!")
         conn
@@ -93,7 +95,7 @@ defmodule Coherence.TrackableService do
       %{
         action: "login",
         sign_in_count: trackable.sign_in_count + 1,
-        current_sign_in_at: Ecto.DateTime.utc,
+        current_sign_in_at: NaiveDateTime.utc_now(),
         current_sign_in_ip: ip,
         last_sign_in_at: last_at,
         last_sign_in_ip: last_ip,
@@ -211,8 +213,8 @@ defmodule Coherence.TrackableService do
   end
 
   defp last_at_and_ip(conn, schema) do
-    now = Ecto.DateTime.utc
-    ip = conn.peer |> elem(0) |> inspect
+    now = NaiveDateTime.utc_now()
+    ip = Plug.Conn.get_peer_data(conn) |> Map.get(:address) |> inspect()
     cond do
       is_nil(schema.last_sign_in_at) and is_nil(schema.current_sign_in_at) ->
         {now, ip, ip, now}
