@@ -110,7 +110,7 @@ defmodule Coherence.SessionController do
   defp valid_user_login?(nil, _params), do: false
   defp valid_user_login?(%{active: false}, _params), do: false
   # defp valid_user_login?(user, %{"session" => %{"password" => password}, %{"is"}}) do
-  defp valid_user_login?(user, params) do
+  def valid_user_login?(user, params) do
     session = params["session"]
     password = session["password"]
     is_prehashed_password = session["is_prehashed_password"]
