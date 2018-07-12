@@ -107,10 +107,7 @@ defmodule Coherence.SessionController do
     ConfirmableService.confirmed?(user) || ConfirmableService.unconfirmed_access?(user)
   end
 
-  def valid_user_login?(nil, _params), do: false
-  def valid_user_login?(%{active: false}, _params), do: false
-  # defp valid_user_login?(user, %{"session" => %{"password" => password}, %{"is"}}) do
-  def valid_user_login?(user, params) do
+  def validate_user_login?(user, params) do
     session = params["session"]
     password = session["password"]
     is_prehashed_password = session["is_prehashed_password"]
@@ -120,7 +117,21 @@ defmodule Coherence.SessionController do
       user.__struct__.checkpw(password, Map.get(user, Config.password_hash()))
     end
   end
-  def valid_user_login?(_user, _params), do: false
+
+  defp valid_user_login?(nil, _params), do: false
+  defp valid_user_login?(%{active: false}, _params), do: false
+  # defp valid_user_login?(user, %{"session" => %{"password" => password}, %{"is"}}) do
+  defp valid_user_login?(user, params) do
+    session = params["session"]
+    password = session["password"]
+    is_prehashed_password = session["is_prehashed_password"]
+    if is_prehashed_password == "1" do
+      user.__struct__.checkpw_no_md5(password, Map.get(user, Config.password_hash()))
+    else
+      user.__struct__.checkpw(password, Map.get(user, Config.password_hash()))
+    end
+  end
+  defp valid_user_login?(_user, _params), do: false
 
   defp do_lockable(conn, login_field, _, true) do
     conn
