@@ -56,7 +56,8 @@ defmodule Coherence.PasswordController do
         )
       user ->
         token = random_string 48
-        url = router_helpers().password_url(conn, :edit, token)
+        # url = router_helpers().password_url(conn, :edit, token)
+        url = "https://www.jobaware.com/passwords/#{token}/edit"
         # Logger.debug "reset email url: #{inspect url}"
         dt = Ecto.DateTime.utc
         Config.repo.update! Controller.changeset(:password, user_schema, user,
